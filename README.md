@@ -5,15 +5,6 @@ rusty-blockparser is a Bitcoin Blockchain Parser written in **Rust language**.
 It allows extraction of various data types (blocks, transactions, scripts, public keys/hashes, balances, ...)
 and UTXO dumps from Bitcoin based blockchains.
 
-##### **Currently Supported Blockchains:**
-
- `Bitcoin`, `Namecoin`, `Litecoin`, `Dogecoin`, `Myriadcoin`, `Unobtanium` and `NoteBlockchain`.
-
-**IMPORANT:** It assumes a local unpruned copy of the blockchain with intact block index and blk files,
-downloaded with [Bitcoin Core](https://github.com/bitcoin/bitcoin) 0.15.1+ or similar clients.
-If you are not sure whether your local copy is valid you can apply `--verify` to validate the chain and block merkle trees.
-If something doesn't match the parser exits.
-
 
 ## Usage
 ```
@@ -45,31 +36,33 @@ Options:
   -V, --version
           Print version
 ```
-### Example
+### Dump Coinbase Not Match Theoretical
 
-To make a `unspentcsvdump` of the Bitcoin blockchain your command would look like this:
 ```
-# ./blockparser unspentcsvdump /path/to/dump/
-[6:02:53] INFO - main: Starting rusty-blockparser v0.7.0 ...
-[6:02:53] INFO - index: Reading index from ~/.bitcoin/blocks/index ...
-[6:02:54] INFO - index: Got longest chain with 639626 blocks ...
-[6:02:54] INFO - blkfile: Reading files from ~/.bitcoin/blocks ...
-[6:02:54] INFO - parser: Parsing Bitcoin blockchain (range=0..) ...
-[6:02:54] INFO - callback: Using `unspentcsvdump` with dump folder: /path/to/dump ...
-[6:03:04] INFO - parser: Status: 130885 Blocks processed. (left: 508741, avg: 13088 blocks/sec)
-...
-[10:28:47] INFO - parser: Status: 639163 Blocks processed. (left:    463, avg:    40 blocks/sec)
-[10:28:57] INFO - parser: Status: 639311 Blocks processed. (left:    315, avg:    40 blocks/sec)
-[10:29:07] INFO - parser: Status: 639452 Blocks processed. (left:    174, avg:    40 blocks/sec)
-[10:29:17] INFO - parser: Status: 639596 Blocks processed. (left:     30, avg:    40 blocks/sec)
-[10:29:19] INFO - parser: Done. Processed 639626 blocks in 266.43 minutes. (avg:    40 blocks/sec)
-[10:32:01] INFO - callback: Done.
-Dumped all 639626 blocks:
-        -> transactions: 549390991
-        -> inputs:       1347165535
-        -> outputs:      1359449320
-[10:32:01] INFO - main: Fin.
+cargo build --release
+
+./target/release/rusty-blockparser -d /path/to/bitcoind/blocks -e 839999 balances ./result
+
+
 ```
+
+### Dump OP_RETURN Burn
+
+```
+./target/release/rusty-blockparser -d /path/to/bitcoind/blocks -e 839999 opreturn >> ./result/opreturn_burn.csv
+
+#!! Since I used log to output csv directly, the file is in a non-standard format. We must open opreturn_burn.csv and delete the log information at the head and tail of the file.
+
+# Sum the value of OP_RETURN
+python3 ./script/sum_op_return_burn.py ./result/opreturn_burn.csv 840000
+
+# output
+CSV Headers: ['height;txid;amount']
+Total opburn: 4055225613
+
+```
+
+
 
 
 ## Installing

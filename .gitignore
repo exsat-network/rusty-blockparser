@@ -4,6 +4,5 @@ csvdump
 .project
 .idea
 
-scripts/
 debug.sh
 dump/

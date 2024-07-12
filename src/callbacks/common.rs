@@ -16,12 +16,23 @@ pub struct UnspentValue {
 pub fn remove_unspents(
     tx: &Hashed<EvaluatedTx>,
     unspents: &mut HashMap<Vec<u8>, UnspentValue>,
-) -> u64 {
+) -> (u64,u64) {
+    let mut spent_value = 0;
     for input in &tx.value.inputs {
         let key = input.outpoint.to_bytes();
-        unspents.remove(&key);
+        if let Some(unspent) = unspents.remove(&key) {
+            spent_value += unspent.value;
+        }
     }
-    tx.value.in_count.value
+    (tx.value.in_count.value,spent_value)
+}
+
+fn bytes_to_hex_string(bytes: &[u8]) -> String {
+    let hex_chars: Vec<String> = bytes.iter()
+        .map(|byte| format!("{:02x}", byte)) 
+        .collect();
+
+    hex_chars.join("") 
 }
 
 /// Iterates over transaction outputs and adds valid unspents to HashMap.
@@ -30,31 +41,25 @@ pub fn insert_unspents(
     tx: &Hashed<EvaluatedTx>,
     block_height: u64,
     unspents: &mut HashMap<Vec<u8>, UnspentValue>,
-) -> u64 {
+) -> (u64,u64) {
     let mut count = 0;
+    let mut new_value = 0;
     for (i, output) in tx.value.outputs.iter().enumerate() {
-        match &output.script.address {
-            Some(address) => {
-                let unspent = UnspentValue {
-                    block_height,
-                    address: address.clone(),
-                    value: output.out.value,
-                };
+        let unspent = UnspentValue {
+            block_height,
+            address: bytes_to_hex_string(&output.out.script_pubkey),
+            value: output.out.value,
+        };
 
-                let key = TxOutpoint::new(tx.hash, i as u32).to_bytes();
-                unspents.insert(key, unspent);
-                count += 1;
-            }
-            None => {
-                debug!(
-                    target: "callback", "Ignoring invalid utxo in: {} ({})",
-                    &tx.hash,
-                    output.script.pattern
-                );
-            }
+
+        let key = TxOutpoint::new(tx.hash, i as u32).to_bytes();
+        if !unspents.contains_key(&key) {
+            new_value += unspent.value;
         }
+        unspents.insert(key, unspent);
+        count += 1;
     }
-    count
+    (count,new_value)
 }
 
 #[cfg(test)]
