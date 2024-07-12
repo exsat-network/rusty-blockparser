@@ -7,10 +7,9 @@ and UTXO dumps from Bitcoin based blockchains.
 
 
 ## Usage
-```
-### Dump Coinbase Not Match Theoretical
+```shell
+# Dump Coinbase Not Match Theoretical
 
-```
 cargo build --release
 
 ./target/release/rusty-blockparser -d /path/to/bitcoind/blocks -e 839999 balances ./result
@@ -20,7 +19,7 @@ INFO - callback: Done
 Dumped 74425205 addresses
 lost_value: 12895502904
 
-## It will dump 2 results
+# It will dump 2 results
 
 ./output.csv # coinbase burned data (block_height, b_reward, in_v, out_v, lost)
 
@@ -29,7 +28,7 @@ lost_value: 12895502904
 
 ### Dump OP_RETURN Burn
 
-```
+```shell
 ./target/release/rusty-blockparser -d /path/to/bitcoind/blocks -e 839999 opreturn >> ./result/opreturn_burn.csv
 
 #!! Since I used log to output csv directly, the file is in a non-standard format. We must open opreturn_burn.csv and delete the log information at the head and tail of the file.
