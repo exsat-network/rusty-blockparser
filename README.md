@@ -8,34 +8,6 @@ and UTXO dumps from Bitcoin based blockchains.
 
 ## Usage
 ```
-Usage: rusty-blockparser [OPTIONS] [COMMAND]
-
-Commands:
-  unspentcsvdump  Dumps the unspent outputs to CSV file
-  csvdump         Dumps the whole blockchain into CSV files
-  simplestats     Shows various Blockchain stats
-  balances        Dumps all addresses with non-zero balance to CSV file
-  opreturn        Shows embedded OP_RETURN data that is representable as UTF8
-  help            Print this message or the help of the given subcommand(s)
-
-Options:
-      --verify
-          Verifies merkle roots and block hashes
-  -v...
-          Increases verbosity level. Info=0, Debug=1, Trace=2 (default: 0)
-  -c, --coin <NAME>
-          Specify blockchain coin (default: bitcoin) [possible values: bitcoin, testnet3, namecoin, litecoin, dogecoin, myriadcoin, unobtanium, noteblockchain]
-  -d, --blockchain-dir <blockchain-dir>
-          Sets blockchain directory which contains blk.dat files (default: ~/.bitcoin/blocks)
-  -s, --start <HEIGHT>
-          Specify starting block for parsing (inclusive)
-  -e, --end <HEIGHT>
-          Specify last block for parsing (inclusive) (default: all known blocks)
-  -h, --help
-          Print help
-  -V, --version
-          Print version
-```
 ### Dump Coinbase Not Match Theoretical
 
 ```
@@ -43,7 +15,16 @@ cargo build --release
 
 ./target/release/rusty-blockparser -d /path/to/bitcoind/blocks -e 839999 balances ./result
 
+# output
+INFO - callback: Done
+Dumped 74425205 addresses
+lost_value: 12895502904
 
+## It will dump 2 results
+
+./output.csv # coinbase burned data (block_height, b_reward, in_v, out_v, lost)
+
+./result/balances.csv # scriptpubkey and balance
 ```
 
 ### Dump OP_RETURN Burn
