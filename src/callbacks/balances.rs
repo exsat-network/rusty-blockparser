@@ -121,7 +121,7 @@ impl Callback for Balances {
             }
         }
 
-        self.lost_value += lost as u64; // 如果 self.lost_value 仍然是 u64 类型
+        self.lost_value += lost as u64;
         Ok(())
     }
 

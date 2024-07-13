@@ -29,10 +29,10 @@ pub fn remove_unspents(
 
 fn bytes_to_hex_string(bytes: &[u8]) -> String {
     let hex_chars: Vec<String> = bytes.iter()
-        .map(|byte| format!("{:02x}", byte)) // 格式化每个字节为两位十六进制
+        .map(|byte| format!("{:02x}", byte))
         .collect();
 
-    hex_chars.join("") // 连接所有的十六进制字符
+    hex_chars.join("") 
 }
 
 /// Iterates over transaction outputs and adds valid unspents to HashMap.
