@@ -10,6 +10,7 @@ def process_csv(file_path):
         reader = csv.reader(file, delimiter=';')
         column_three_data = []
         temp_string = ""
+        line_count = 0
 
         for row in reader:
             if len(row) < 3:
@@ -21,13 +22,16 @@ def process_csv(file_path):
                 temp_string += "".join(row)
                 column_three_data.append(temp_string.strip())
                 temp_string = ""
+                line_count += 1
             else:
                 # Normal case
                 column_three_data.append(row[2].strip())
+                line_count += 1
 
         # In case the last entry is not processed
         if temp_string:
             column_three_data.append(temp_string.strip())
+            line_count += 1
 
         # Calculate the required statistics
         char_counts = [len(data) for data in column_three_data]
@@ -41,7 +45,7 @@ def process_csv(file_path):
         max_bytes = max(byte_counts)
         mean_bytes = statistics.mean(byte_counts) if byte_counts else 0
 
-        return total_chars, max_chars, mean_chars, total_bytes, max_bytes, mean_bytes
+        return line_count, total_chars, max_chars, mean_chars, total_bytes, max_bytes, mean_bytes
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -49,7 +53,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     file_path = sys.argv[1]
-    total_chars, max_chars, mean_chars, total_bytes, max_bytes, mean_bytes = process_csv(file_path)
+    line_count, total_chars, max_chars, mean_chars, total_bytes, max_bytes, mean_bytes = process_csv(file_path)
+    print(f"Total Lines: {line_count}")
     print(f"Total Characters: {total_chars}")
     print(f"Max Characters: {max_chars}")
     print(f"Mean Characters: {mean_chars:.2f}")
